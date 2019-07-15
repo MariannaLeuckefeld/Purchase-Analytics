@@ -10,16 +10,20 @@ q3 implies output of question 3
     percentage. What is the percentage of requests containing products ordered for the first time compared with the
     total number of requests for products from that department?
     (e.g., number_of_first_orders divided by number_of_orders)
+
+--> see bottom of the file
 """
 
 import csv
 import argparse
 
-parser = argparse.ArgumentParser(description='process')
-parser.add_argument('order_products_path')
-parser.add_argument('products_path')
-parser.add_argument('report_path')
-args = parser.parse_args()
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='process')
+    parser.add_argument('order_products_path')
+    parser.add_argument('products_path')
+    parser.add_argument('report_path')
+    return parser.parse_args()
 
 
 def get_input(path):
@@ -86,6 +90,7 @@ def output(q3):
 
 
 if __name__ == '__main__':
+    args = parse_args()
     orders = get_input(args.order_products_path)
     products = get_input(args.products_path)
     results = merge(orders, products)
