@@ -1,10 +1,7 @@
-'''
+"""
 Script to gather the input files and create an output file as report.csv
+"""
 
-
-
-'''
-# importing csv module
 import csv
 import argparse
 
@@ -15,37 +12,29 @@ parser.add_argument('report_path')
 args = parser.parse_args()
 
 
-
-
-
-
-
-
-
-
-
-
 def get_input(path):
-    with open(path) as fh:
-        orders = csv.DictReader(fh)
-        res=[]
-        for row in orders:
+    """Opens both input files and encodes as well. The results will be saved in a list"""
+    with open(path, encoding="utf8") as fh:
+        file = csv.DictReader(fh)
+        res = []
+        for row in file:
             res.append(row)
     return res
 
-#merge together based on product_id
+
 def merge(orders, products):
+    """merge together based on product_id"""
     res=[]
     for row in orders:
         for row1 in products:
-            if row['product_id']==row1['product_id']:
+            if row['product_id'] == row1['product_id']:
                 batch_dict = {**row, **row1}
                 res.append(batch_dict)
     return res
 
-#calculate the number_of_orders greater than 0
 
 def number_of_orders(results):
+    """calculate the number_of_orders greater than 0"""
     res = {}
     department_ids = [r['department_id'] for r in results]
     for department_id in department_ids:
@@ -55,8 +44,8 @@ def number_of_orders(results):
     return res
 
 
-#calculate the number_of_first_orders
 def number_of_first_orders(results):
+    """calculate the number_of_first_orders (when reordered ==0) for every department ID"""
      res = {}
      department_ids = [r['department_id'] for r in results]
      for department_id in department_ids:
@@ -67,41 +56,29 @@ def number_of_first_orders(results):
      return res
 
 
-
-# calculate percentage (number_of_first_orders divided by number_of_orders)
 def percentage(q1,q2):
+    """# We are creating one output and merging q1 and q2 based on the department ID together
+      # calculate percentage (number_of_first_orders divided by number_of_orders)"""
     res=[]
     for id in q1.keys():
         res.append({'department_id':id,'number_of_orders':q1[id],'number_of_first_orders':q2[id],'percentage':(q2[id]/q1[id])})
     return res
 
 
-
-
-
-# creation and writing into the final csv file
-def output(q1):
-    result=[]
-    result.append(q1)
-
-
-
-    with open(args.report_path,'w') as fh_report:
-        wr =csv.writer(fh_report, quoting=csv.QUOTE_ALL)
-     #   wr.writerow()
-
-
-
+def output(q3):
+    """creation of final csv """
+    with open(args.report_path, 'w', newline='') as fh_report:
+        writer = csv.DictWriter(fh_report, fieldnames=q3[0])
+        writer.writeheader()
+        for data in q3:
+            writer.writerow(data)
 
 
 if __name__=='__main__':
     orders = get_input(args.order_products_path)
     products = get_input(args.products_path)
     results = merge(orders,products)
-    print(results)
     q1 = number_of_orders(results)
-    print(q1)
     q2 = number_of_first_orders(results)
-    print(q2)
     q3 = percentage(q1,q2)
-    print(q3)
+    output(q3)
